@@ -5,7 +5,7 @@
 [![TailwindCSS](https://img.shields.io/badge/TailwindCSS-v3-38bdf8.svg)](https://tailwindcss.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-An end-to-end FinTech credit card fraud detection system combining **supervised learning (XGBoost + SMOTE)** and **unsupervised anomaly detection (Isolation Forest)**. Features both an interactive **Streamlit dashboard** and a modern, high-performance **FinTech Web Frontend (HTML/Tailwind/Chart.js)** built using the [UI/UX Pro Max](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill) design system.
+An end-to-end FinTech credit card fraud detection system combining **supervised learning (XGBoost + SMOTE)** and **unsupervised anomaly detection (Isolation Forest)**. Features both an interactive **Streamlit dashboard** and a modern, high-performance **FinTech Web Frontend (HTML/Tailwind/Chart.js)**.
 
 ---
 
@@ -16,7 +16,7 @@ An end-to-end FinTech credit card fraud detection system combining **supervised 
   - **Isolation Forest (Anomaly Detection):** High-dimensional unsupervised anomaly detector detecting zero-day fraud signatures with **88.6% Recall** and **99.42% ROC-AUC**.
 - **Strict Leakage Prevention:** Scaler and SMOTE rebalancing are fitted strictly on the training partition (`X_train`), ensuring zero data leakage into holdout evaluation.
 - **Dual Dashboard Interfaces:**
-  - **Production Web UI (`frontend.html`):** Dark-mode Swiss/Minimalist design system featuring interactive Chart.js distributions, holdout queue inspector, and a live transaction risk simulator.
+  - **Production Web UI (`frontend.html`):** Dark-mode interface featuring interactive Chart.js distributions, holdout queue inspector, and a live transaction risk simulator.
   - **Streamlit Analytics App (`app.py`):** 7 interactive analytical tabs including EDA, ROC curves, confusion matrices, and live prediction forms.
 
 ---
@@ -51,7 +51,7 @@ credit-card-fraud-detection/
 │   ├── model_metrics.json
 │   └── training_summary.json
 ├── dataset/                 # Dataset directory (creditcard.csv auto-generated/downloaded)
-├── frontend.html            # UI/UX Pro Max FinTech Web UI (Swiss/Minimalist dark theme)
+├── frontend.html            # FinTech Web UI
 ├── app.py                   # Streamlit dashboard
 ├── train.py                 # Pipeline training & artifact generation entry point
 ├── main.py                  # Exploratory Data Analysis (EDA) script
@@ -88,7 +88,7 @@ python train.py
 
 ### 3. Launch Dashboards
 
-#### Option A: Web UI (Minimalist FinTech Interface)
+#### Option A: Web UI
 Open `frontend.html` directly in your browser or serve locally:
 ```powershell
 python -m http.server 8000
@@ -102,17 +102,14 @@ streamlit run app.py
 
 ---
 
-## 🖥️ UI/UX Pro Max Frontend Design
+## 🖥️ Web Frontend Features
 
-The Web UI (`frontend.html`) was designed using [UI/UX Pro Max](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill) design intelligence:
+The Web UI (`frontend.html`) provides a responsive, dark-mode dashboard:
 
-- **Style:** Enterprise Swiss Minimalism (Dark Obsidian `#0B0F19` with Amber `#F59E0B` and Tech Purple `#8B5CF6`).
-- **Interactive Visualizations:**
-  - Class distribution before and after SMOTE rebalancing via Chart.js.
-  - Model comparison tradeoffs (Precision vs. Recall).
-  - Confusion matrix cards (True Negatives: 56,812 | True Positives: 79 | False Positives: 54 | False Negatives: 17).
-- **Holdout Queue Inspector:** Live queue with search filter and risk levels (`CLEARED`, `STEP-UP AUTH`, `BLOCKED`).
-- **Risk Simulator:** Instant preset loader ("Legitimate" vs "High-Risk Fraud") with PCA vector adjusters.
+- **Executive Overview:** Key metrics, ensemble architecture overview, and before/after SMOTE class distribution charts.
+- **Model Evaluation:** Side-by-side performance comparison across models, metric tradeoffs, and confusion matrix insights.
+- **Holdout Queue Inspector:** Searchable transaction queue with instant risk flags (`CLEARED`, `STEP-UP AUTH`, `BLOCKED`).
+- **Risk Simulator:** Interactive transaction tester with instant presets for testing legitimate and fraudulent scenarios.
 
 ---
 

@@ -1,11 +1,11 @@
 # Banking Fraud Detection System — Agent Guide
 
-**What this project does:** Classifies credit card transactions as legitimate or fraudulent using two ML models (Isolation Forest + XGBoost) and serves an interactive Streamlit dashboard.
+**What this project does:** Classifies credit card transactions as legitimate or fraudulent using two ML models (Isolation Forest + XGBoost) and serves an interactive Streamlit dashboard and standalone web UI.
 
 ## Quick Start
 
 ```powershell
-cd "C:\Users\Shaya\OneDrive\Documents\Visual Studio 2019\fraud_detect\fraud_detect\Banking-Fraud-Detection-and-Risk-Analysis-System-main"
+cd "fraud_detect\Banking-Fraud-Detection-and-Risk-Analysis-System-main"
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
@@ -19,8 +19,9 @@ streamlit run app.py      # launches dashboard
 |---|---|
 | `train.py` | Main training pipeline — orchestrates preprocessing, SMOTE, model training, evaluation, artifact saving |
 | `app.py` | Streamlit dashboard — loads saved models, shows metrics, enables live prediction |
-| `main.py` | Quick EDA script (not part of pipeline, reads from `data/` instead of `dataset/`) |
-| `train_model.py` | Legacy RandomForest-based training script (deprecated, uses `data/` path) |
+| `frontend.html` | High-performance responsive web dashboard with live simulator and risk inspector |
+| `main.py` | Quick EDA script (not part of pipeline) |
+| `train_model.py` | Legacy RandomForest-based training script |
 | `debug_fetch_dataset.py` | One-off dataset fetch diagnostic script |
 
 ### Source Modules (`src/`)
@@ -58,7 +59,7 @@ Key rule: **no data leakage** — SMOTE never touches test data; scaler never fi
 | `smote.joblib` | Trained SMOTE object |
 | `model_metrics.json` | Evaluation metrics for both models |
 | `training_summary.json` | Full training run summary |
-| `fraud_model.pkl` | Legacy RandomForest model (from train_model.py) |
+| `fraud_model.pkl` | Legacy RandomForest model |
 
 ## Model Performance (current best)
 
@@ -67,7 +68,7 @@ Key rule: **no data leakage** — SMOTE never touches test data; scaler never fi
 | XGBoost | 99.86% | 61.0% | **85.1%** | 71.1% | 99.76% | 85.79% |
 | Isolation Forest | 99.21% | 18.7% | 88.6% | 30.9% | 99.42% | 76.87% |
 
-**XGBoost is the primary model.** Isolation Forest provides anomaly detection complement but has low precision due to unsupervised nature.
+**XGBoost is the primary model.** Isolation Forest provides anomaly detection complement.
 
 ## Dataset Schema
 
@@ -93,27 +94,13 @@ Key rule: **no data leakage** — SMOTE never touches test data; scaler never fi
 
 `models/*.joblib`, `models/*.json`, `models/*.pkl` — these are outputs of `train.py`. Regenerate by re-running training.
 
-## Frontend UI & Design System (UI/UX Pro Max)
+## Frontend Web UI
 
-The frontend has been completely engineered using the **UI/UX Pro Max** design intelligence guidelines (`nextlevelbuilder/ui-ux-pro-max-skill`), styled specifically for high-trust FinTech banking risk dashboards.
+A standalone web UI is available at:
+- `frontend.html`
 
-### Design System Configuration
-- **Visual Style:** *Minimalism & Swiss Style* (Enterprise FinTech / Dashboard)
-- **Palette (Dark Mode):** Deep Slate (`#0B0F19`), Surface Cards (`#1E293B`, `#222735`), Border (`#334155`)
-- **Accent & Action Roles:** Trust Gold (`#F59E0B`), Secondary Gold (`#FBBF24`), Tech Purple (`#8B5CF6`), Destructive/Fraud Alert (`#EF4444`), Verified Green (`#10B981`)
-- **Typography:** `IBM Plex Sans` (Financial, serious, trustworthy corporate font) + `JetBrains Mono` for latency, scores, and transaction IDs
-- **UX Best Practices Applied:** Zero emoji iconography (clean Lucide/Heroicon SVGs), responsive layouts (375px through 1440px+), high-contrast accessible states (WCAG AAA compliant for critical text), and non-blocking subtle hover transitions (200ms).
-
-### Available Frontend Locations
-1. **Repository root web interface:**
-   - [`frontend.html`](file:///c:/Users/Shaya/OneDrive/Documents/Visual Studio 2019/fraud_detect/fraud_detect/Banking-Fraud-Detection-and-Risk-Analysis-System-main/frontend.html)
-2. **Brain Artifact viewer:**
-   - [frontend.html (Artifact)](file:///C:/Users/Shaya/.gemini/antigravity/brain/85b91412-0940-4624-bcc5-4a825b37f1fc/frontend.html)
-
-### Features included in the UI
-- **Executive Overview Dashboard:** Key stats (284,807 transactions, 0.2% fraud prevalence), SMOTE rebalancing visualization with Chart.js, and ensemble strategy breakdown.
-- **Model Evaluation Benchmarks:** Interactive comparison table for XGBoost vs. Isolation Forest, visual recall/F1 tradeoff chart, and confusion matrix breakdown.
-- **Live Holdout Risk Inspector:** Filterable transaction queue with instant classification badges (`CLEARED`, `STEP-UP AUTH`, `BLOCKED`) and one-click inspection.
-- **Interactive Risk Simulator:** Live manual tester with quick presets for "Legitimate" and "High-Risk Fraud" cases, interactive PCA vector adjusters, and real-time risk scoring output.
-
-
+### Features:
+- **Executive Overview:** Key metrics, SMOTE rebalancing chart, and ensemble architecture.
+- **Model Comparison:** Performance tables and confusion matrix cards.
+- **Risk Queue Inspector:** Real-time transaction review with search and risk filters.
+- **Interactive Risk Simulator:** Transaction scoring tester with presets for legitimate and high-risk fraud cases.
