@@ -1,0 +1,46 @@
+# Python virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.cpython-*
+
+# Datasets and large data files (never commit 25MB+ files to git)
+dataset/creditcard.csv
+dataset/test_transactions.csv
+data/test_transactions.csv
+data/*.csv
+dataset/*.csv
+
+# Environment and sensitive variables
+.env
+.env.*
+!.env.example
+
+# VS Code / IDE files
+.vscode/
+.idea/
+.ipynb_checkpoints/
+
+# OS metadata
+.DS_Store
+Thumbs.db
+ehthumbs.db
+
+# Logs & temp files
+*.log
+*.tmp
+
+# Build & packaging
+build/
+dist/
+*.egg-info/
+
+# Streamlit config / cache
+.streamlit/secrets.toml

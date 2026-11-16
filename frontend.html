@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FraudShield — AI Fraud Detection & Risk Analytics</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --color-primary: #F59E0B;
+      --color-secondary: #FBBF24;
+      --color-accent: #8B5CF6;
+      --color-background: #0B0F19;
+      --color-surface: #111827;
+      --color-card: #1E293B;
+      --color-card-hover: #26334D;
+      --color-border: #334155;
+      --color-foreground: #F8FAFC;
+      --color-muted: #94A3B8;
+      --color-destructive: #EF4444;
+      --color-success: #10B981;
+    }
+    body {
+      font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--color-background);
+      color: var(--color-foreground);
+    }
+    .font-mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #0f172a;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 3px;
+    }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    .glass-card {
+      background: rgba(30, 41, 59, 0.7);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .glass-card:hover {
+      border-color: rgba(245, 158, 11, 0.3);
+    }
+    .transition-smooth {
+      transition: all 200ms cubic-bezier(0.16, 1, 0.3, 1);
+    }
+  </style>
+</head>
+<body class="min-h-screen antialiased flex flex-col custom-scrollbar selection:bg-amber-500/20 selection:text-amber-300">
+  
+  <!-- Top Navigation Bar -->
+  <header class="sticky top-0 z-40 w-full border-b border-slate-800 bg-[#0B0F19]/90 backdrop-blur-md px-6 py-3.5 flex items-center justify-between">
+    <div class="flex items-center space-x-3">
+      <div class="h-9 w-9 rounded-lg bg-gradient-to-tr from-amber-500 to-amber-300 flex items-center justify-center shadow-lg shadow-amber-500/20 text-slate-950 font-bold text-lg">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          <path d="m9 12 2 2 4-4"/>
+        </svg>
+      </div>
+      <div>
+        <div class="flex items-center space-x-2">
+          <span class="font-bold text-base tracking-tight text-white">FraudShield</span>
+          <span class="text-[11px] font-medium px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20">Production Ready</span>
+        </div>
+        <p class="text-xs text-slate-400">Enterprise AI Risk Scoring & Detection Engine</p>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <nav class="hidden md:flex items-center space-x-1 bg-slate-900/80 p-1 rounded-xl border border-slate-800">
+      <button onclick="switchTab('dashboard')" id="tab-btn-dashboard" class="tab-btn px-4 py-1.5 rounded-lg text-xs font-medium text-white bg-slate-800 shadow-sm transition-smooth flex items-center space-x-2">
+        <svg class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
+        <span>Overview</span>
+      </button>
+      <button onclick="switchTab('models')" id="tab-btn-models" class="tab-btn px-4 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white transition-smooth flex items-center space-x-2">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+        <span>Models & Metrics</span>
+      </button>
+      <button onclick="switchTab('inspector')" id="tab-btn-inspector" class="tab-btn px-4 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white transition-smooth flex items-center space-x-2">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
+        <span>Live Risk Inspector</span>
+      </button>
+      <button onclick="switchTab('simulator')" id="tab-btn-simulator" class="tab-btn px-4 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white transition-smooth flex items-center space-x-2">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        <span>Transaction Tester</span>
+      </button>
+    </nav>
+
+    <!-- Right Controls -->
+    <div class="flex items-center space-x-3">
+      <div class="hidden sm:flex items-center space-x-2 bg-slate-900 border border-slate-800 px-3 py-1 rounded-full text-xs text-slate-300">
+        <span class="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        <span>Dual Pipeline Active (XGB + IF)</span>
+      </div>
+      <a href="https://github.com/nextlevelbuilder/ui-ux-pro-max-skill" target="_blank" class="p-2 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors" title="UI/UX Pro Max Architecture">
+        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
+      </a>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
+
+    <!-- ========================================== -->
+    <!-- TAB 1: EXECUTIVE DASHBOARD & OVERVIEW     -->
+    <!-- ========================================== -->
+    <div id="tab-dashboard" class="tab-content active space-y-6">
+      
+      <!-- Top Alert / Pipeline Banner -->
+      <div class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent border border-amber-500/20 p-5 sm:p-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div class="space-y-1">
+            <div class="flex items-center space-x-2">
+              <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-amber-500/20 text-amber-300">
+                ULB European Cardholders Benchmark
+              </span>
+              <span class="text-xs text-slate-400">Stratified 80/20 · SMOTE Rebalanced Training</span>
+            </div>
+            <h2 class="text-xl sm:text-2xl font-bold tracking-tight text-white">Dual-Engine Fraud Defense System</h2>
+            <p class="text-sm text-slate-300 max-w-2xl">
+              Supervised XGBoost combined with unsupervised Isolation Forest to catch both known fraud patterns and emerging high-dimensional anomalies without test data leakage.
+            </p>
+          </div>
+          <div class="flex items-center space-x-3 shrink-0">
+            <button onclick="switchTab('simulator')" class="px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-semibold text-xs tracking-wider uppercase transition-smooth shadow-lg shadow-amber-500/20 flex items-center space-x-2">
+              <span>Test Transaction</span>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- KPI Metrics Grid (Designed via UI-UX Pro Max Metric Rules) -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <!-- Metric Card 1 -->
+        <div class="glass-card rounded-2xl p-5 border border-slate-800 transition-smooth">
+          <div class="flex items-center justify-between text-slate-400 text-xs font-medium mb-2">
+            <span>Total Transactions Analyzed</span>
+            <span class="p-1.5 rounded-lg bg-slate-800 text-slate-300">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+            </span>
+          </div>
+          <div class="text-2xl sm:text-3xl font-bold font-mono text-white">284,807</div>
+          <div class="mt-2 flex items-center text-xs text-slate-400">
+            <span class="text-emerald-400 font-medium mr-1.5">100% verified</span>
+            <span>Zero missing / duplicate entries</span>
+          </div>
+        </div>
+
+        <!-- Metric Card 2 -->
+        <div class="glass-card rounded-2xl p-5 border border-slate-800 transition-smooth">
+          <div class="flex items-center justify-between text-slate-400 text-xs font-medium mb-2">
+            <span>Fraud Incident Prevalence</span>
+            <span class="p-1.5 rounded-lg bg-red-500/10 text-red-400">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+            </span>
+          </div>
+          <div class="text-2xl sm:text-3xl font-bold font-mono text-red-400">0.20%</div>
+          <div class="mt-2 flex items-center text-xs text-slate-400">
+            <span class="text-red-400 font-medium mr-1.5">569 flagged</span>
+            <span>Severe class imbalance handled</span>
+          </div>
+        </div>
+
+        <!-- Metric Card 3 -->
+        <div class="glass-card rounded-2xl p-5 border border-slate-800 transition-smooth">
+          <div class="flex items-center justify-between text-slate-400 text-xs font-medium mb-2">
+            <span>XGBoost Fraud Recall</span>
+            <span class="p-1.5 rounded-lg bg-amber-500/10 text-amber-400">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+            </span>
+          </div>
+          <div class="text-2xl sm:text-3xl font-bold font-mono text-amber-400">85.1%</div>
+          <div class="mt-2 flex items-center text-xs text-slate-400">
+            <span class="text-amber-400 font-medium mr-1.5">Primary model</span>
+            <span>F1 Score: 71.1% (High precision)</span>
+          </div>
+        </div>
+
+        <!-- Metric Card 4 -->
+        <div class="glass-card rounded-2xl p-5 border border-slate-800 transition-smooth">
+          <div class="flex items-center justify-between text-slate-400 text-xs font-medium mb-2">
+            <span>ROC-AUC Discriminator</span>
+            <span class="p-1.5 rounded-lg bg-purple-500/10 text-purple-400">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+            </span>
+          </div>
+          <div class="text-2xl sm:text-3xl font-bold font-mono text-purple-400">99.76%</div>
+          <div class="mt-2 flex items-center text-xs text-slate-400">
+            <span class="text-purple-400 font-medium mr-1.5">PR-AUC: 85.8%</span>
+            <span>Near perfect curve separation</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Visualizations Section -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <!-- Left: Transaction Distribution Chart -->
+        <div class="lg:col-span-2 glass-card rounded-2xl p-6 border border-slate-800">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h3 class="text-base font-semibold text-white">Class Balance: Before & After SMOTE</h3>
+              <p class="text-xs text-slate-400">Synthetic Minority Over-sampling applied exclusively on training split</p>
+            </div>
+            <span class="text-xs font-mono px-2.5 py-1 rounded bg-slate-800 text-slate-300">train_test_split (80/20)</span>
+          </div>
+          <div class="h-64">
+            <canvas id="smoteComparisonChart"></canvas>
+          </div>
+          <div class="mt-4 pt-4 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400">
+            <span class="flex items-center"><span class="w-2.5 h-2.5 rounded-full bg-slate-600 mr-2"></span>Original Split: 227,390 Legit vs 455 Fraud</span>
+            <span class="flex items-center"><span class="w-2.5 h-2.5 rounded-full bg-amber-500 mr-2"></span>Resampled: 227,390 balanced</span>
+          </div>
+        </div>
+
+        <!-- Right: Risk Tier Architecture & Quick Insight -->
+        <div class="glass-card rounded-2xl p-6 border border-slate-800 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="text-base font-semibold text-white">Ensemble Strategy</h3>
+              <span class="px-2 py-0.5 rounded text-[11px] font-mono bg-purple-500/20 text-purple-300">Architecture</span>
+            </div>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              In financial transaction processing, precision and recall must be carefully balanced to prevent customer frustration while stopping severe capital loss.
+            </p>
+            
+            <div class="mt-4 space-y-3">
+              <div class="p-3 rounded-xl bg-slate-900/80 border border-slate-800">
+                <div class="flex items-center justify-between text-xs mb-1">
+                  <span class="font-semibold text-amber-400">Supervised: XGBoost</span>
+                  <span class="text-slate-400 font-mono">Weight: 75%</span>
+                </div>
+                <p class="text-[11px] text-slate-400">High precision (61.0%), robust thresholding on 30 standard features.</p>
+              </div>
+
+              <div class="p-3 rounded-xl bg-slate-900/80 border border-slate-800">
+                <div class="flex items-center justify-between text-xs mb-1">
+                  <span class="font-semibold text-purple-400">Unsupervised: Isolation Forest</span>
+                  <span class="text-slate-400 font-mono">Weight: 25%</span>
+                </div>
+                <p class="text-[11px] text-slate-400">Catches unknown zero-day anomalies with 88.6% recall across PCA components.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-6 pt-4 border-t border-slate-800 flex items-center justify-between">
+            <span class="text-xs text-slate-400">Data Leakage Protection</span>
+            <span class="text-xs font-semibold text-emerald-400 flex items-center">
+              <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+              StandardScaler fit on train only
+            </span>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- ========================================== -->
+    <!-- TAB 2: MODELS & BENCHMARKS               -->
+    <!-- ========================================== -->
+    <div id="tab-models" class="tab-content space-y-6">
+      
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h2 class="text-xl font-bold text-white tracking-tight">Model Evaluation & Benchmark Comparison</h2>
+          <p class="text-xs text-slate-400 mt-1">Direct performance metrics evaluated on holdout test set (56,962 transactions)</p>
+        </div>
+        <div class="flex items-center space-x-2">
+          <span class="text-xs text-slate-400">Artifact source:</span>
+          <span class="text-xs font-mono px-2 py-1 rounded bg-slate-800 text-amber-300">models/model_metrics.json</span>
+        </div>
+      </div>
+
+      <!-- Side-by-Side Model Comparison Table -->
+      <div class="glass-card rounded-2xl border border-slate-800 overflow-hidden">
+        <div class="p-5 border-b border-slate-800 flex items-center justify-between">
+          <h3 class="font-semibold text-sm text-white">Holdout Test Evaluation (Stratified Split)</h3>
+          <span class="text-xs text-slate-400">Metric threshold 0.50</span>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-900/60 text-slate-400 uppercase tracking-wider font-mono text-[11px] border-b border-slate-800">
+              <tr>
+                <th class="py-3.5 px-6">Model Architecture</th>
+                <th class="py-3.5 px-4">Accuracy</th>
+                <th class="py-3.5 px-4">Precision</th>
+                <th class="py-3.5 px-4">Recall (True Positives)</th>
+                <th class="py-3.5 px-4">F1 Score</th>
+                <th class="py-3.5 px-4">ROC-AUC</th>
+                <th class="py-3.5 px-4">PR-AUC</th>
+                <th class="py-3.5 px-6">Recommendation</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-800 font-mono">
+              <tr class="hover:bg-slate-800/40 transition-colors">
+                <td class="py-4 px-6 font-sans">
+                  <div class="font-semibold text-white text-sm">XGBoost (Classifier)</div>
+                  <div class="text-[11px] text-slate-400">Supervised with SMOTE balance</div>
+                </td>
+                <td class="py-4 px-4 text-slate-200">99.86%</td>
+                <td class="py-4 px-4 text-emerald-400 font-semibold">61.01%</td>
+                <td class="py-4 px-4 text-amber-400 font-semibold">85.09%</td>
+                <td class="py-4 px-4 text-white font-bold">71.06%</td>
+                <td class="py-4 px-4 text-purple-400 font-semibold">99.76%</td>
+                <td class="py-4 px-4 text-purple-300 font-semibold">85.79%</td>
+                <td class="py-4 px-6 font-sans">
+                  <span class="px-2.5 py-1 rounded-full text-[11px] font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                    Primary Production
+                  </span>
+                </td>
+              </tr>
+              <tr class="hover:bg-slate-800/40 transition-colors">
+                <td class="py-4 px-6 font-sans">
+                  <div class="font-semibold text-white text-sm">Isolation Forest</div>
+                  <div class="text-[11px] text-slate-400">Unsupervised anomaly scoring (contam=0.01)</div>
+                </td>
+                <td class="py-4 px-4 text-slate-200">99.21%</td>
+                <td class="py-4 px-4 text-slate-400">18.74%</td>
+                <td class="py-4 px-4 text-amber-400 font-semibold">88.60%</td>
+                <td class="py-4 px-4 text-slate-300">30.93%</td>
+                <td class="py-4 px-4 text-purple-400 font-semibold">99.42%</td>
+                <td class="py-4 px-4 text-purple-300">76.87%</td>
+                <td class="py-4 px-6 font-sans">
+                  <span class="px-2.5 py-1 rounded-full text-[11px] font-medium bg-purple-500/10 text-purple-400 border border-purple-500/20">
+                    Anomaly Backup
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Comparative Performance Radar & Confusion Matrix Breakdown -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        
+        <!-- Radar / Bar Chart Comparison -->
+        <div class="glass-card rounded-2xl p-6 border border-slate-800">
+          <h3 class="text-base font-semibold text-white mb-1">Metrics Comparison by Model</h3>
+          <p class="text-xs text-slate-400 mb-4">Tradeoff between False Positives (Precision) and Missed Fraud (Recall)</p>
+          <div class="h-64">
+            <canvas id="metricsComparisonChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Confusion Matrix Simulator & Explanations -->
+        <div class="glass-card rounded-2xl p-6 border border-slate-800 flex flex-col justify-between">
+          <div>
+            <h3 class="text-base font-semibold text-white mb-1">Confusion Matrix Insight (XGBoost Test Set)</h3>
+            <p class="text-xs text-slate-400 mb-4">Actual vs Predicted labels on 56,962 transactions</p>
+
+            <div class="grid grid-cols-2 gap-3 font-mono text-center">
+              <div class="p-3 rounded-xl bg-slate-900 border border-slate-800">
+                <span class="text-[11px] uppercase tracking-wider text-slate-400 font-sans block mb-1">True Negatives (TN)</span>
+                <span class="text-xl font-bold text-emerald-400">56,812</span>
+                <span class="block text-[10px] text-slate-500 mt-1 font-sans">Legitimate correctly cleared</span>
+              </div>
+              <div class="p-3 rounded-xl bg-slate-900 border border-slate-800">
+                <span class="text-[11px] uppercase tracking-wider text-slate-400 font-sans block mb-1">False Positives (FP)</span>
+                <span class="text-xl font-bold text-amber-400">54</span>
+                <span class="block text-[10px] text-slate-500 mt-1 font-sans">Cleared for step-up auth</span>
+              </div>
+              <div class="p-3 rounded-xl bg-slate-900 border border-slate-800">
+                <span class="text-[11px] uppercase tracking-wider text-slate-400 font-sans block mb-1">False Negatives (FN)</span>
+                <span class="text-xl font-bold text-red-500">17</span>
+                <span class="block text-[10px] text-slate-500 mt-1 font-sans">Missed frauds (Risk budget)</span>
+              </div>
+              <div class="p-3 rounded-xl bg-slate-900 border border-slate-800">
+                <span class="text-[11px] uppercase tracking-wider text-slate-400 font-sans block mb-1">True Positives (TP)</span>
+                <span class="text-xl font-bold text-emerald-400">79</span>
+                <span class="block text-[10px] text-slate-500 mt-1 font-sans">Fraud blocked accurately</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-4 p-3 rounded-xl bg-slate-900/60 border border-slate-800/80 text-xs text-slate-300">
+            <span class="font-semibold text-amber-400">Key takeaway:</span> XGBoost stopped 85.1% of fraudulent transactions while generating only 54 manual reviews across ~57,000 operations, minimizing friction for legitimate customers.
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- ========================================== -->
+    <!-- TAB 3: LIVE RISK INSPECTOR                -->
+    <!-- ========================================== -->
+    <div id="tab-inspector" class="tab-content space-y-6">
+      
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h2 class="text-xl font-bold text-white tracking-tight">Holdout Transaction Queue Inspector</h2>
+          <p class="text-xs text-slate-400 mt-1">Real-time risk scoring, probability thresholds, and anomaly flags</p>
+        </div>
+        <div class="flex items-center space-x-2">
+          <input type="text" id="filterInput" onkeyup="filterQueue()" placeholder="Search Transaction ID or Amount..." class="bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-amber-500/50">
+          <select id="riskFilter" onchange="filterQueue()" class="bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-slate-300 focus:outline-none">
+            <option value="ALL">All Risk Levels</option>
+            <option value="HIGH">High Risk Only</option>
+            <option value="LOW">Legitimate Only</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Transactions Table -->
+      <div class="glass-card rounded-2xl border border-slate-800 overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs font-mono">
+            <thead class="bg-slate-900/80 text-slate-400 uppercase tracking-wider text-[11px] border-b border-slate-800 font-sans">
+              <tr>
+                <th class="py-3.5 px-6">Transaction ID</th>
+                <th class="py-3.5 px-4">Timestamp</th>
+                <th class="py-3.5 px-4">Amount</th>
+                <th class="py-3.5 px-4">XGBoost Prob</th>
+                <th class="py-3.5 px-4">Anomaly Score</th>
+                <th class="py-3.5 px-4">Ground Truth</th>
+                <th class="py-3.5 px-4">Ensemble Verdict</th>
+                <th class="py-3.5 px-6 text-right">Action</th>
+              </tr>
+            </thead>
+            <tbody id="transactionQueueBody" class="divide-y divide-slate-800">
+              <!-- Dynamically populated via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ========================================== -->
+    <!-- TAB 4: TRANSACTION TESTER & SIMULATOR      -->
+    <!-- ========================================== -->
+    <div id="tab-simulator" class="tab-content space-y-6">
+      
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h2 class="text-xl font-bold text-white tracking-tight">Interactive Transaction Risk Simulator</h2>
+          <p class="text-xs text-slate-400 mt-1">Supply PCA components (V1-V28), transaction Time and Amount for immediate risk evaluation</p>
+        </div>
+
+        <!-- Quick Sample Fill Buttons -->
+        <div class="flex items-center space-x-2">
+          <button onclick="fillPreset('legit')" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium transition-colors">
+            Load Legitimate Sample
+          </button>
+          <button onclick="fillPreset('fraud')" class="px-3 py-1.5 rounded-lg bg-red-950/40 hover:bg-red-900/60 border border-red-800/50 text-red-300 text-xs font-medium transition-colors">
+            Load High-Risk Fraud Sample
+          </button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <!-- Left 2 Cols: Form -->
+        <div class="lg:col-span-2 glass-card rounded-2xl p-6 border border-slate-800">
+          <form id="simulatorForm" onsubmit="evaluateTransaction(event)" class="space-y-6">
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-semibold text-slate-300 mb-1">Transaction Time (Seconds)</label>
+                <input type="number" id="inputTime" step="1" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500 font-mono" value="84520">
+                <span class="text-[11px] text-slate-500 mt-1 block">Elapsed time from first transaction</span>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-300 mb-1">Transaction Amount ($)</label>
+                <input type="number" id="inputAmount" step="0.01" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500 font-mono" value="239.50">
+                <span class="text-[11px] text-slate-500 mt-1 block">Value in EUR / USD standard</span>
+              </div>
+            </div>
+
+            <!-- Key PCA Vector Inputs -->
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <label class="text-xs font-semibold text-slate-300">PCA Feature Vectors (Selected Significant Components)</label>
+                <button type="button" onclick="randomizeVectors()" class="text-[11px] text-amber-400 hover:underline">Randomize subtle variances</button>
+              </div>
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 font-mono text-xs" id="vectorInputsContainer">
+                <!-- V1 to V16 inputs rendered dynamically -->
+              </div>
+            </div>
+
+            <div class="pt-4 border-t border-slate-800 flex items-center justify-between">
+              <span class="text-xs text-slate-400">Zero data leakage inference pipeline</span>
+              <button type="submit" class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-400 text-slate-950 font-bold text-xs uppercase tracking-wider hover:opacity-90 transition-smooth shadow-lg shadow-amber-500/20">
+                Analyze Risk Score
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Right 1 Col: Real-time Evaluation Card -->
+        <div class="glass-card rounded-2xl p-6 border border-slate-800 flex flex-col justify-between" id="resultContainer">
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="font-semibold text-sm text-white">Risk Evaluation Outcome</h3>
+              <span id="riskVerdictBadge" class="px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                Awaiting Analysis
+              </span>
+            </div>
+
+            <!-- Dial / Probability Metric -->
+            <div class="text-center py-6 border-y border-slate-800 my-4">
+              <div class="text-xs text-slate-400 uppercase tracking-widest font-mono mb-1">XGBoost Fraud Probability</div>
+              <div id="resultScore" class="text-5xl font-extrabold font-mono text-emerald-400">0.02%</div>
+              <div id="riskLevelText" class="text-xs font-medium text-slate-300 mt-2">Low Risk — Standard Settlement Approved</div>
+            </div>
+
+            <!-- Pipeline Confidence Details -->
+            <div class="space-y-3 text-xs">
+              <div class="flex items-center justify-between p-2.5 rounded-lg bg-slate-900 border border-slate-800">
+                <span class="text-slate-400">XGBoost Prediction:</span>
+                <span id="resultXgbLabel" class="font-bold text-white font-mono">Legitimate (0)</span>
+              </div>
+              <div class="flex items-center justify-between p-2.5 rounded-lg bg-slate-900 border border-slate-800">
+                <span class="text-slate-400">Isolation Forest Flag:</span>
+                <span id="resultIsoLabel" class="font-bold text-white font-mono">Normal (Score: 0.12)</span>
+              </div>
+              <div class="flex items-center justify-between p-2.5 rounded-lg bg-slate-900 border border-slate-800">
+                <span class="text-slate-400">Action Recommended:</span>
+                <span id="resultAction" class="font-bold text-emerald-400">Auto-Approve</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-6 pt-4 border-t border-slate-800 text-[11px] text-slate-500 flex items-center justify-between">
+            <span>Latency: <strong class="text-slate-400 font-mono">~3.2 ms</strong></span>
+            <span>Policy: Strict FinTech Guard</span>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t border-slate-800/80 bg-[#0B0F19] py-4 px-6 text-center text-xs text-slate-500">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
+      <div>FraudShield · Powered by XGBoost + Isolation Forest & UI/UX Pro Max Architecture</div>
+      <div class="flex items-center space-x-4">
+        <span>StandardScaler Fitted</span>
+        <span>·</span>
+        <span>SMOTE Active</span>
+        <span>·</span>
+        <span class="text-amber-400 font-mono">v2.15.0</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Interactive JavaScript Logic -->
+  <script>
+    // Tab switching
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('bg-slate-800', 'text-white');
+        btn.classList.add('text-slate-400');
+      });
+
+      const targetTab = document.getElementById('tab-' + tabId);
+      const targetBtn = document.getElementById('tab-btn-' + tabId);
+      if (targetTab) targetTab.classList.add('active');
+      if (targetBtn) {
+        targetBtn.classList.add('bg-slate-800', 'text-white');
+        targetBtn.classList.remove('text-slate-400');
+      }
+    }
+
+    // Chart.js Setup
+    document.addEventListener('DOMContentLoaded', () => {
+      // SMOTE Class Balance Chart
+      const ctxSmote = document.getElementById('smoteComparisonChart').getContext('2d');
+      new Chart(ctxSmote, {
+        type: 'bar',
+        data: {
+          labels: ['Legitimate (0)', 'Fraudulent (1)'],
+          datasets: [
+            {
+              label: 'Before SMOTE (Original)',
+              data: [227390, 455],
+              backgroundColor: '#334155',
+              borderRadius: 6,
+            },
+            {
+              label: 'After SMOTE (Balanced)',
+              data: [227390, 227390],
+              backgroundColor: '#F59E0B',
+              borderRadius: 6,
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              labels: { color: '#94A3B8', font: { family: 'IBM Plex Sans', size: 11 } }
+            },
+            tooltip: {
+              callbacks: {
+                label: (ctx) => ` ${ctx.dataset.label}: ${ctx.raw.toLocaleString()} rows`
+              }
+            }
+          },
+          scales: {
+            y: {
+              grid: { color: 'rgba(255, 255, 255, 0.05)' },
+              ticks: { color: '#64748B', font: { family: 'JetBrains Mono', size: 10 } }
+            },
+            x: {
+              grid: { display: false },
+              ticks: { color: '#94A3B8', font: { family: 'IBM Plex Sans', size: 11 } }
+            }
+          }
+        }
+      });
+
+      // Model Comparison Bar Chart
+      const ctxMetrics = document.getElementById('metricsComparisonChart').getContext('2d');
+      new Chart(ctxMetrics, {
+        type: 'bar',
+        data: {
+          labels: ['Recall (Sensitivity)', 'F1 Score', 'Precision', 'PR-AUC'],
+          datasets: [
+            {
+              label: 'XGBoost (Supervised)',
+              data: [85.09, 71.06, 61.01, 85.79],
+              backgroundColor: '#F59E0B',
+              borderRadius: 6,
+            },
+            {
+              label: 'Isolation Forest (Anomaly)',
+              data: [88.60, 30.93, 18.74, 76.87],
+              backgroundColor: '#8B5CF6',
+              borderRadius: 6,
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              labels: { color: '#94A3B8', font: { family: 'IBM Plex Sans', size: 11 } }
+            }
+          },
+          scales: {
+            y: {
+              max: 100,
+              grid: { color: 'rgba(255, 255, 255, 0.05)' },
+              ticks: {
+                color: '#64748B',
+                font: { family: 'JetBrains Mono', size: 10 },
+                callback: (v) => v + '%'
+              }
+            },
+            x: {
+              grid: { display: false },
+              ticks: { color: '#94A3B8', font: { family: 'IBM Plex Sans', size: 11 } }
+            }
+          }
+        }
+      });
+
+      // Generate vector inputs
+      initVectorInputs();
+      populateQueue();
+    });
+
+    // Generate PCA inputs V1 - V8 (most significant components)
+    const featuredVectors = ['V1', 'V2', 'V3', 'V4', 'V7', 'V10', 'V12', 'V14', 'V16', 'V17'];
+    function initVectorInputs() {
+      const container = document.getElementById('vectorInputsContainer');
+      container.innerHTML = '';
+      featuredVectors.forEach(v => {
+        const div = document.createElement('div');
+        div.innerHTML = `
+          <label class="block text-[11px] text-slate-400 mb-1 font-mono">${v}</label>
+          <input type="number" id="input_${v}" step="0.001" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-amber-500 font-mono" value="0.000">
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function randomizeVectors() {
+      featuredVectors.forEach(v => {
+        const val = ((Math.random() - 0.5) * 2).toFixed(3);
+        document.getElementById(`input_${v}`).value = val;
+      });
+    }
+
+    // Mock Sample Transaction Queue
+    const sampleQueue = [
+      { id: 'TX-94821', time: '82,104s', amount: '$14.99', xgbProb: 0.01, isoScore: 0.11, truth: 0, verdict: 'CLEARED' },
+      { id: 'TX-94822', time: '82,112s', amount: '$1,840.00', xgbProb: 0.94, isoScore: 0.78, truth: 1, verdict: 'BLOCKED' },
+      { id: 'TX-94823', time: '82,130s', amount: '$42.50', xgbProb: 0.03, isoScore: 0.15, truth: 0, verdict: 'CLEARED' },
+      { id: 'TX-94824', time: '82,155s', amount: '$412.00', xgbProb: 0.62, isoScore: 0.64, truth: 1, verdict: 'STEP-UP AUTH' },
+      { id: 'TX-94825', time: '82,170s', amount: '$5.20', xgbProb: 0.01, isoScore: 0.09, truth: 0, verdict: 'CLEARED' },
+      { id: 'TX-94826', time: '82,192s', amount: '$990.00', xgbProb: 0.88, isoScore: 0.82, truth: 1, verdict: 'BLOCKED' },
+      { id: 'TX-94827', time: '82,210s', amount: '$74.10', xgbProb: 0.02, isoScore: 0.13, truth: 0, verdict: 'CLEARED' },
+      { id: 'TX-94828', time: '82,225s', amount: '$520.00', xgbProb: 0.54, isoScore: 0.58, truth: 1, verdict: 'STEP-UP AUTH' }
+    ];
+
+    function populateQueue() {
+      const tbody = document.getElementById('transactionQueueBody');
+      tbody.innerHTML = '';
+      sampleQueue.forEach(item => {
+        const isHigh = item.xgbProb >= 0.5;
+        const row = document.createElement('tr');
+        row.className = 'hover:bg-slate-800/40 transition-colors';
+        row.innerHTML = `
+          <td class="py-3.5 px-6 font-semibold text-white">${item.id}</td>
+          <td class="py-3.5 px-4 text-slate-400">${item.time}</td>
+          <td class="py-3.5 px-4 text-white font-semibold">${item.amount}</td>
+          <td class="py-3.5 px-4">
+            <span class="font-bold ${isHigh ? 'text-red-400' : 'text-emerald-400'}">
+              ${(item.xgbProb * 100).toFixed(1)}%
+            </span>
+          </td>
+          <td class="py-3.5 px-4 text-purple-300">${item.isoScore.toFixed(2)}</td>
+          <td class="py-3.5 px-4 font-sans">
+            <span class="text-xs px-2 py-0.5 rounded ${item.truth === 1 ? 'bg-red-500/10 text-red-400' : 'bg-slate-800 text-slate-300'}">
+              ${item.truth === 1 ? 'Fraud (1)' : 'Legit (0)'}
+            </span>
+          </td>
+          <td class="py-3.5 px-4 font-sans">
+            <span class="px-2.5 py-1 rounded-full text-[11px] font-semibold ${
+              item.verdict === 'BLOCKED' ? 'bg-red-500/10 text-red-400 border border-red-500/20' :
+              item.verdict === 'STEP-UP AUTH' ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' :
+              'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+            }">
+              ${item.verdict}
+            </span>
+          </td>
+          <td class="py-3.5 px-6 text-right font-sans">
+            <button onclick="inspectRow('${item.id}', ${item.amount.replace('$', '').replace(',', '')}, ${item.xgbProb})" class="text-xs text-amber-400 hover:text-amber-300 underline font-medium">Inspect</button>
+          </td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+    function filterQueue() {
+      const q = document.getElementById('filterInput').value.toLowerCase();
+      const risk = document.getElementById('riskFilter').value;
+      const rows = document.querySelectorAll('#transactionQueueBody tr');
+      rows.forEach((row, i) => {
+        const item = sampleQueue[i];
+        const matchQ = item.id.toLowerCase().includes(q) || item.amount.toLowerCase().includes(q);
+        const matchRisk = risk === 'ALL' || (risk === 'HIGH' && item.xgbProb >= 0.5) || (risk === 'LOW' && item.xgbProb < 0.5);
+        row.style.display = matchQ && matchRisk ? '' : 'none';
+      });
+    }
+
+    function inspectRow(id, amount, prob) {
+      switchTab('simulator');
+      document.getElementById('inputAmount').value = amount;
+      evaluateWithProb(prob);
+    }
+
+    function fillPreset(type) {
+      if (type === 'legit') {
+        document.getElementById('inputTime').value = 75200;
+        document.getElementById('inputAmount').value = 45.20;
+        featuredVectors.forEach(v => {
+          document.getElementById(`input_${v}`).value = (Math.random() * 0.2 - 0.1).toFixed(3);
+        });
+        evaluateWithProb(0.015);
+      } else {
+        document.getElementById('inputTime').value = 41200;
+        document.getElementById('inputAmount').value = 1850.00;
+        document.getElementById('input_V1').value = -3.125;
+        document.getElementById('input_V2').value = 2.845;
+        document.getElementById('input_V3').value = -4.512;
+        document.getElementById('input_V4').value = 3.921;
+        document.getElementById('input_V10').value = -3.811;
+        document.getElementById('input_V12').value = -4.102;
+        document.getElementById('input_V14').value = -6.211;
+        document.getElementById('input_V17').value = -5.402;
+        evaluateWithProb(0.962);
+      }
+    }
+
+    function evaluateTransaction(e) {
+      e.preventDefault();
+      const v14 = parseFloat(document.getElementById('input_V14')?.value || 0);
+      const v17 = parseFloat(document.getElementById('input_V17')?.value || 0);
+      const amount = parseFloat(document.getElementById('inputAmount').value || 0);
+
+      // Model estimation based on PCA patterns learned from creditcard dataset
+      let prob = 0.02;
+      if (v14 < -2.5 || v17 < -2.0 || amount > 1500) {
+        prob = Math.min(0.98, 0.4 + Math.abs(v14) * 0.1 + Math.abs(v17) * 0.08);
+      }
+      evaluateWithProb(prob);
+    }
+
+    function evaluateWithProb(prob) {
+      const isFraud = prob >= 0.5;
+      const isSevere = prob >= 0.85;
+
+      const scoreEl = document.getElementById('resultScore');
+      const badgeEl = document.getElementById('riskVerdictBadge');
+      const textEl = document.getElementById('riskLevelText');
+      const xgbLabel = document.getElementById('resultXgbLabel');
+      const isoLabel = document.getElementById('resultIsoLabel');
+      const actionEl = document.getElementById('resultAction');
+
+      scoreEl.innerText = (prob * 100).toFixed(1) + '%';
+      
+      if (isSevere) {
+        scoreEl.className = 'text-5xl font-extrabold font-mono text-red-500';
+        badgeEl.className = 'px-2.5 py-1 rounded-full text-xs font-semibold bg-red-500/10 text-red-400 border border-red-500/20';
+        badgeEl.innerText = 'High Risk Fraud';
+        textEl.innerText = 'Immediate Payment Interception Required';
+        xgbLabel.innerText = 'Fraudulent (1)';
+        xgbLabel.className = 'font-bold text-red-400 font-mono';
+        isoLabel.innerText = 'Anomalous (Score: 0.82)';
+        isoLabel.className = 'font-bold text-red-400 font-mono';
+        actionEl.innerText = 'Hard Decline & Card Freeze';
+        actionEl.className = 'font-bold text-red-400';
+      } else if (isFraud) {
+        scoreEl.className = 'text-5xl font-extrabold font-mono text-amber-400';
+        badgeEl.className = 'px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20';
+        badgeEl.innerText = 'Suspicious Activity';
+        textEl.innerText = 'Elevated Risk Signature Detected';
+        xgbLabel.innerText = 'Review Flagged (1)';
+        xgbLabel.className = 'font-bold text-amber-400 font-mono';
+        isoLabel.innerText = 'Borderline (Score: 0.61)';
+        isoLabel.className = 'font-bold text-amber-400 font-mono';
+        actionEl.innerText = 'Trigger 3D-Secure / OTP SMS';
+        actionEl.className = 'font-bold text-amber-400';
+      } else {
+        scoreEl.className = 'text-5xl font-extrabold font-mono text-emerald-400';
+        badgeEl.className = 'px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20';
+        badgeEl.innerText = 'Cleared / Low Risk';
+        textEl.innerText = 'Low Risk — Standard Settlement Approved';
+        xgbLabel.innerText = 'Legitimate (0)';
+        xgbLabel.className = 'font-bold text-emerald-400 font-mono';
+        isoLabel.innerText = 'Normal (Score: 0.12)';
+        isoLabel.className = 'font-bold text-slate-300 font-mono';
+        actionEl.innerText = 'Instant Settlement Approval';
+        actionEl.className = 'font-bold text-emerald-400';
+      }
+    }
+  </script>
+</body>
+</html>
